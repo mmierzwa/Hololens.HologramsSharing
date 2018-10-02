@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Another Shared Holograms", "Another Shared Holograms.csproj", "{14DAD0F8-8959-DE74-5BAC-DD657AE84C89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Another Shared Holograms.Editor", "Another Shared Holograms.Editor.csproj", "{6C0B492E-BB07-2E54-8786-61BFB82B5D3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{14DAD0F8-8959-DE74-5BAC-DD657AE84C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14DAD0F8-8959-DE74-5BAC-DD657AE84C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14DAD0F8-8959-DE74-5BAC-DD657AE84C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14DAD0F8-8959-DE74-5BAC-DD657AE84C89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C0B492E-BB07-2E54-8786-61BFB82B5D3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C0B492E-BB07-2E54-8786-61BFB82B5D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C0B492E-BB07-2E54-8786-61BFB82B5D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C0B492E-BB07-2E54-8786-61BFB82B5D3D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
