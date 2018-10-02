@@ -1,29 +1,36 @@
 ﻿using Academy.HoloToolkit.Sharing;
 using HoloToolkit.Sharing;
 using HoloToolkit.Unity;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HologramPlacement : Singleton<HologramPlacement>
 {
     /// <summary>
-    /// Tracks if we have been sent a transform for the anchor model.
-    /// The anchor model is rendered relative to the actual anchor.
+    /// Tracks if we have been sent a transform for the model.
+    /// The model is rendered relative to the actual anchor.
     /// </summary>
     public bool GotTransform { get; private set; }
 
-    private bool animationPlayed = false;
+    /// <summary>
+    /// When the experience starts, we disable all of the rendering of the model.
+    /// </summary>
+    List<MeshRenderer> disabledRenderers = new List<MeshRenderer>();
 
     void Start()
     {
-        // We care about getting updates for the anchor transform.
+        // When we first start, we need to disable the model to avoid it obstructing the user picking a hat.
+        DisableModel();
+
+        // We care about getting updates for the model transform.
         CustomMessages.Instance.MessageHandlers[CustomMessages.TestMessageID.StageTransform] = OnStageTransform;
 
-        // And when a new user join we will send the anchor transform we have.
+        // And when a new user join we will send the model transform we have.
         SharingSessionTracker.Instance.SessionJoined += Instance_SessionJoined;
     }
 
     /// <summary>
-    /// When a new user joins we want to send them the relative transform for the anchor if we have it.
+    /// When a new user joins we want to send them the relative transform for the model if we have it.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -35,20 +42,66 @@ public class HologramPlacement : Singleton<HologramPlacement>
         }
     }
 
-    void Update()
+    /// <summary>
+    /// Turns off all renderers for the model.
+    /// </summary>
+    void DisableModel()
     {
-        if (GotTransform)
+        foreach (MeshRenderer renderer in gameObject.GetComponentsInChildren<MeshRenderer>())
         {
-            if (ImportExportAnchorManager.Instance.AnchorEstablished &&
-                animationPlayed == false)
+            if (renderer.enabled)
             {
-                // This triggers the animation sequence for the anchor model and 
-                // puts the cool materials on the model.
-                GetComponent<EnergyHubBase>().SendMessage("OnSelect");
-                animationPlayed = true;
+                renderer.enabled = false;
+                disabledRenderers.Add(renderer);
             }
         }
-        else
+
+        foreach (MeshCollider collider in gameObject.GetComponentsInChildren<MeshCollider>())
+        {
+            collider.enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// Turns on all renderers that were disabled.
+    /// </summary>
+    void EnableModel()
+    {
+        foreach (MeshRenderer renderer in disabledRenderers)
+        {
+            renderer.enabled = true;
+        }
+
+        foreach (MeshCollider collider in gameObject.GetComponentsInChildren<MeshCollider>())
+        {
+            collider.enabled = true;
+        }
+
+        disabledRenderers.Clear();
+    }
+
+
+    void Update()
+    {
+        // Wait till users pick an avatar to enable renderers.
+        if (disabledRenderers.Count > 0)
+        {
+            if (!PlayerAvatarStore.Instance.PickerActive &&
+            ImportExportAnchorManager.Instance.AnchorEstablished)
+            {
+                // After which we want to start rendering.
+                EnableModel();
+
+                // And if we've already been sent the relative transform, we will use it.
+                if (GotTransform)
+                {
+                    // This triggers the animation sequence for the model and 
+                    // puts the cool materials on the model.
+                    GetComponent<EnergyHubBase>().SendMessage("OnSelect");
+                }
+            }
+        }
+        else if (GotTransform == false)
         {
             transform.position = Vector3.Lerp(transform.position, ProposeTransformPosition(), 0.2f);
         }
@@ -56,7 +109,7 @@ public class HologramPlacement : Singleton<HologramPlacement>
 
     Vector3 ProposeTransformPosition()
     {
-        // Put the anchor 2m in front of the user.
+        // Put the model 2m in front of the user.
         Vector3 retval = Camera.main.transform.position + Camera.main.transform.forward * 2;
 
         return retval;
@@ -83,9 +136,9 @@ public class HologramPlacement : Singleton<HologramPlacement>
         transform.localPosition = CustomMessages.Instance.ReadVector3(msg);
         transform.localRotation = CustomMessages.Instance.ReadQuaternion(msg);
 
-        // The first time, we'll want to send the message to the anchor to do its animation and
+        // The first time, we'll want to send the message to the model to do its animation and
         // swap its materials.
-        if (GotTransform == false)
+        if (disabledRenderers.Count == 0 && GotTransform == false)
         {
             GetComponent<EnergyHubBase>().SendMessage("OnSelect");
         }

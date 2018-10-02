@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 /App
 /Temp
+/Library/CrashedAssetImports.txt
+/Library/ShaderCache
